@@ -1,0 +1,31 @@
+
+## `.gitignore`
+
+```gitignore
+# Бинарные файлы
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Выходные файлы
+*.out
+*.o
+*.a
+
+# Сборочные папки
+build/
+bin/
+
+# Базы данных
+*.db
+
+# IDE и системные файлы
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# Модули
+vendor/
