@@ -255,4 +255,4 @@ MIT License
 2. Проверьте метрики: http://localhost:9091
 3. Проверьте Grafana: http://localhost:3000
 4. Создайте Issue в репозитории
->>>>>>> develop
+
