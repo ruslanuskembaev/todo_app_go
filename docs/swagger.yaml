@@ -1,0 +1,232 @@
+basePath: /api/v1
+definitions:
+  handlers.ErrorResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  handlers.HealthResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  models.Todo:
+    properties:
+      completed:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: integer
+      task:
+        maxLength: 500
+        minLength: 1
+        type: string
+      updated_at:
+        type: string
+    required:
+    - task
+    type: object
+  models.TodoCreateRequest:
+    properties:
+      task:
+        maxLength: 500
+        minLength: 1
+        type: string
+    required:
+    - task
+    type: object
+  models.TodoUpdateRequest:
+    properties:
+      completed:
+        type: boolean
+      task:
+        maxLength: 500
+        minLength: 1
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Production-ready Todo API with Redis, Kafka, Prometheus, Grafana, Kubernetes.
+  title: Todo App API
+  version: "1.0"
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check if the service is healthy
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.HealthResponse'
+      summary: Health check
+      tags:
+      - health
+  /ready:
+    get:
+      consumes:
+      - application/json
+      description: Check if the service is ready to serve requests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.HealthResponse'
+      summary: Ready check
+      tags:
+      - health
+  /todos:
+    get:
+      consumes:
+      - application/json
+      description: Get all todo items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Todo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get all todos
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Create a new todo item
+      parameters:
+      - description: Todo to create
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/models.TodoCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create a new todo
+      tags:
+      - todos
+  /todos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a todo item by its ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Delete a todo
+      tags:
+      - todos
+    get:
+      consumes:
+      - application/json
+      description: Get a specific todo item by its ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Todo'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get a todo by ID
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: Update an existing todo item
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Todo updates
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/models.TodoUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update a todo
+      tags:
+      - todos
+schemes:
+- http
+swagger: "2.0"
