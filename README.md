@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # todo_app_go
 
 Простое TODO-приложение на Go с использованием REST API и SQLite.  
