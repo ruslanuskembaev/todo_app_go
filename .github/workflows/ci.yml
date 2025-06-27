@@ -1,0 +1,46 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ prod ]
+  pull_request:
+    branches: [ prod ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      - name: Install dependencies
+        run: go mod download
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.55.2
+      - name: Run tests
+        run: go test ./... -v -coverprofile=coverage.out
+      - name: Check coverage
+        run: |
+          go tool cover -func=coverage.out
+          pct=$(go tool cover -func=coverage.out | grep total: | awk '{print substr($3, 1, length($3)-1)}')
+          echo "Total coverage: $pct%"
+          if (( $(echo "$pct < 60.0" | bc -l) )); then
+            echo "Coverage is less than 60%!"; exit 1
+          fi
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/todo-app:${{ github.sha }} .
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/todo-app:${{ github.sha }}
+      - name: Push latest tag
+        run: |
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/todo-app:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/todo-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/todo-app:latest 
